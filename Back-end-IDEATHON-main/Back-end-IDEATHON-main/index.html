@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RealNews - Fact Checking</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #212121;
+            color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 22px 35px;
+            background: #171717;
+            border-bottom: 1px solid #333;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #10a37f;
+        }
+
+        main {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .files {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .file-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            min-height: 160px;
+            padding: 25px 15px;
+            border: 1px solid #414141;
+            border-radius: 16px;
+            background: #2b2b2b;
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .file-card:hover {
+            background: #353535;
+            border-color: #10a37f;
+            transform: translateY(-3px);
+        }
+
+        .icon {
+            font-size: 43px;
+        }
+
+        .file-card h2 {
+            font-size: 17px;
+        }
+
+        .file-card p {
+            color: #aaa;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* Área do Texto Colado */
+        .text-input-container {
+            margin-top: 25px;
+        }
+
+        .text-input-container label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #2b2b2b;
+            border: 1px solid #414141;
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+            font-size: 14px;
+            resize: vertical;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #10a37f;
+        }
+
+        .selected-files {
+            margin-top: 25px;
+            padding: 18px;
+            border: 1px solid #414141;
+            border-radius: 12px;
+            color: #bbb;
+            font-size: 14px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+            background: #2b2b2b;
+        }
+
+        .selected-files h3 {
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .selected-files ul {
+            padding-left: 20px;
+        }
+
+        /* Botão de Envio */
+        .btn-analisar {
+            display: block;
+            width: 100%;
+            margin-top: 25px;
+            padding: 16px;
+            background: #10a37f;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-analisar:hover {
+            background: #0e8e6f;
+        }
+
+        /* Card de Resultado da Análise */
+        .result-card {
+            display: none;
+            margin-top: 35px;
+            padding: 25px;
+            border-radius: 16px;
+            background: #171717;
+            border: 1px solid #10a37f;
+            line-height: 1.6;
+        }
+
+        .result-card h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #10a37f;
+        }
+
+        .badge-veredito {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: #333;
+            color: #fff;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 25px;
+            color: #10a37f;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            color: #777;
+            padding: 30px 15px;
+            font-size: 12px;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                padding: 20px;
+            }
+
+            main {
+                margin: 20px auto;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .files {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Real<span>News</span></div>
+    </header>
+
+    <main>
+        <h1>Análise de Veracidade</h1>
+
+        <p class="subtitle">
+            Descubra se o conteúdo é verídico ou falso enviando um arquivo ou colando o texto/link abaixo.
+        </p>
+
+        <div class="files">
+
+            <a href="#"
+               class="file-card"
+               onclick="abrirSeletor(event, 'pdf')">
+                <span class="icon">📕</span>
+                <h2>Arquivos PDF</h2>
+                <p>Selecionar documentos PDF</p>
+            </a>
+
+            <a href="#"
+               class="file-card"
+               onclick="abrirSeletor(event, 'documentos')">
+                <span class="icon">📄</span>
+                <h2>Documentos</h2>
+                <p>DOC, DOCX, TXT e outros</p>
+            </a>
+
+            <a href="#"
+               class="file-card"
+               onclick="abrirSeletor(event, 'imagens')">
+                <span class="icon">🖼️</span>
+                <h2>Imagens</h2>
+                <p>JPG, PNG e WEBP</p>
+            </a>
+
+        </div>
+
+        <input type="file" id="pdf" accept=".pdf" multiple>
+        <input type="file" id="documentos" accept=".doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.csv,.ppt,.pptx" multiple>
+        <input type="file" id="imagens" accept="image/*" multiple>
+
+        <div class="selected-files">
+            <h3>📎 Arquivos selecionados</h3>
+            <ul id="lista">
+                <li>Nenhum arquivo selecionado.</li>
+            </ul>
+        </div>
+
+        <!-- Campo de texto alternativo ou complemento -->
+        <div class="text-input-container">
+            <label for="textoNoticia"><strong>Ou cole a notícia / link aqui diretamente:</strong></label>
+            <textarea id="textoNoticia" placeholder="Cole aqui o texto da notícia ou o link para análise..."></textarea>
+        </div>
+
+        <button class="btn-analisar" onclick="enviarParaVerificacao()">🔍 Analisar com IA</button>
+
+        <!-- Indicador de Carregamento -->
+        <div id="loading" class="loading">
+            ⏳ Analisando conteúdo no Gemini... Aguarde um instante.
+        </div>
+
+        <!-- Exibição do Resultado da API -->
+        <div id="resultCard" class="result-card">
+            <h2>Resultado do Fact-Checking</h2>
+            <p><strong>Veredito:</strong> <span id="resVeredito" class="badge-veredito">-</span></p>
+            <p><strong>Nível de Confiança:</strong> <span id="resConfianca">-</span></p>
+            <br>
+            <p><strong>Análise Detalhada:</strong></p>
+            <p id="resResumo" style="color: #ccc; margin-top: 5px;"></p>
+        </div>
+    </main>
+
+    <footer>
+        RealNews - Verificador de Fatos com Inteligência Artificial.
+    </footer>
+
+    <script>
+        const lista = document.getElementById("lista");
+        const arquivosSelecionados = new Map();
+
+        function abrirSeletor(event, tipo) {
+            event.preventDefault();
+            document.getElementById(tipo).click();
+        }
+
+        ["pdf", "documentos", "imagens"].forEach(tipo => {
+            document.getElementById(tipo).addEventListener(
+                "change",
+                function () {
+                    for (const arquivo of this.files) {
+                        const chave = tipo + ":" + arquivo.name + ":" + arquivo.size;
+                        arquivosSelecionados.set(chave, arquivo);
+                    }
+                    atualizarLista();
+                    this.value = "";
+                }
+            );
+        });
+
+        function atualizarLista() {
+            lista.replaceChildren();
+
+            if (arquivosSelecionados.size === 0) {
+                const item = document.createElement("li");
+                item.textContent = "Nenhum arquivo selecionado.";
+                lista.appendChild(item);
+                return;
+            }
+
+            arquivosSelecionados.forEach((arquivo, chave) => {
+                const item = document.createElement("li");
+                item.textContent = arquivo.name + " (" + (arquivo.size / 1024).toFixed(1) + " KB) ";
+
+                const remover = document.createElement("button");
+                remover.textContent = "Remover";
+                remover.type = "button";
+                remover.style.cssText = "margin-left:10px;cursor:pointer;background:none;border:0;color:#10a37f;";
+
+                remover.addEventListener("click", () => {
+                    arquivosSelecionados.delete(chave);
+                    atualizarLista();
+                });
+
+                item.appendChild(remover);
+                lista.appendChild(item);
+            });
+        }
+
+        // --- INTEGRAÇÃO COM A API DJANGO ---
+        async function enviarParaVerificacao() {
+            const textoDigitado = document.getElementById("textoNoticia").value.trim();
+            let conteudoFinal = textoDigitado;
+
+            // Se o usuário selecionou arquivos, vamos ler o conteúdo dos arquivos de texto selecionados
+            if (arquivosSelecionados.size > 0) {
+                for (let [chave, arquivo] of arquivosSelecionados) {
+                    if (arquivo.name.endsWith(".txt")) {
+                        const textoArquivo = await arquivo.text();
+                        conteudoFinal += "\n\n" + textoArquivo;
+                    } else {
+                        conteudoFinal += `\n\n[Arquivo anexado: ${arquivo.name}]`;
+                    }
+                }
+            }
+
+            if (!conteudoFinal.trim()) {
+                alert("Por favor, cole um texto/link ou selecione um arquivo para analisar.");
+                return;
+            }
+
+            // Exibe indicador de loading e esconde resultados anteriores
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("resultCard").style.display = "none";
+
+            try {
+                // Chamada Fetch para a API Django
+                const response = await fetch('http://127.0.0.1:8000/api/analisar/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tipo_conteudo: "texto_ou_arquivo",
+                        conteudo: conteudoFinal
+                    })
+                });
+
+                const data = await response.json();
+
+                document.getElementById("loading").style.display = "none";
+
+                if (response.ok) {
+                    // Preenche e exibe os dados retornados do Gemini
+                    document.getElementById("resVeredito").innerText = data.resultado.veredito || "Analisado";
+                    document.getElementById("resConfianca").innerText = data.resultado.nivel_confianca || "Média";
+                    document.getElementById("resResumo").innerText = data.resultado.resumo_analise || "Sem resumo disponível.";
+
+                    // Destaca a cor do veredito
+                    const badge = document.getElementById("resVeredito");
+                    const veredito = (data.resultado.veredito || "").toLowerCase();
+                    if (veredito.includes("falso")) {
+                        badge.style.background = "#e53935"; // Vermelho
+                    } else if (veredito.includes("verdadeiro")) {
+                        badge.style.background = "#43a047"; // Verde
+                    } else {
+                        badge.style.background = "#fb8c00"; // Laranja/Amarelo
+                    }
+
+                    document.getElementById("resultCard").style.display = "block";
+                } else {
+                    alert("Erro do servidor: " + (data.erro || "Erro na solicitação."));
+                }
+
+            } catch (error) {
+                document.getElementById("loading").style.display = "none";
+                console.error("Erro na comunicação:", error);
+                alert("Não foi possível conectar ao servidor Django (http://127.0.0.1:8000). Certifique-se de que ele está rodando!");
+            }
+        }
+    </script>
+
+</body>
+</html>
