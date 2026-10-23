@@ -3,441 +3,491 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RealNews - Fact Checking</title>
+    <meta name="description" content="RealNews: aprenda a verificar informações, combater a desinformação e entender deepfakes.">
+    <title>RealNews | Verifique antes de compartilhar</title>
 
     <style>
+        :root {
+            --fundo: #061326;
+            --cartao: #0a1b32;
+            --borda: #173b5e;
+            --texto: #f4f7fb;
+            --texto-suave: #aec2dc;
+            --verde: #18e0b2;
+            --azul: #12a9f5;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #212121;
-            color: #f5f5f5;
             min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background:
+                radial-gradient(ellipse at 85% 25%, rgba(0, 112, 190, 0.13), transparent 38%),
+                var(--fundo);
+            color: var(--texto);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(1060px, calc(100% - 40px));
+            margin: 0 auto;
         }
 
         header {
-            padding: 22px 35px;
-            background: #171717;
-            border-bottom: 1px solid #333;
+            background: rgba(7, 23, 43, 0.94);
+            border-bottom: 1px solid rgba(60, 110, 155, 0.28);
+        }
+
+        .navbar {
+            min-height: 76px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
         }
 
         .logo {
-            font-size: 23px;
-            font-weight: bold;
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -1px;
         }
 
         .logo span {
-            color: #10a37f;
+            color: var(--verde);
         }
 
-        main {
-            max-width: 850px;
-            margin: 40px auto;
-            padding: 20px;
+        nav {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 28px;
+        }
+
+        nav a {
+            color: var(--texto-suave);
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        nav a:hover,
+        nav a[aria-current="page"] {
+            color: var(--verde);
+        }
+
+        .hero {
+            padding: 78px 0 58px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(190px, 0.7fr);
+            align-items: center;
+            gap: 38px;
+        }
+
+        .etiqueta {
+            display: inline-block;
+            padding: 6px 13px;
+            margin-bottom: 20px;
+            color: var(--verde);
+            border: 1px solid rgba(24, 224, 178, 0.65);
+            background: rgba(24, 224, 178, 0.07);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 0.4px;
         }
 
         h1 {
-            text-align: center;
-            font-size: 32px;
-            margin-bottom: 12px;
+            max-width: 690px;
+            font-size: clamp(36px, 5.5vw, 60px);
+            line-height: 1.08;
+            letter-spacing: -1.8px;
+            margin-bottom: 22px;
         }
 
-        .subtitle {
-            text-align: center;
-            color: #aaa;
-            margin-bottom: 35px;
-            line-height: 1.6;
+        .destaque {
+            color: var(--verde);
         }
 
-        .files {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
+        .hero p {
+            max-width: 640px;
+            color: var(--texto-suave);
+            font-size: 17px;
+            margin-bottom: 28px;
         }
 
-        .file-card {
-            display: flex;
-            flex-direction: column;
+        .botao-principal {
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            min-height: 160px;
-            padding: 25px 15px;
-            border: 1px solid #414141;
-            border-radius: 16px;
-            background: #2b2b2b;
-            color: #fff;
-            text-decoration: none;
-            cursor: pointer;
-            transition: 0.2s;
+            gap: 10px;
+            padding: 13px 22px;
+            border-radius: 10px;
+            background: linear-gradient(105deg, var(--verde), var(--azul));
+            color: #031525;
+            font-size: 15px;
+            font-weight: 800;
+            transition: transform 0.2s ease, filter 0.2s ease;
         }
 
-        .file-card:hover {
-            background: #353535;
-            border-color: #10a37f;
+        .botao-principal:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        .visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 245px;
+            position: relative;
+        }
+
+        .orbita {
+            width: 220px;
+            height: 155px;
+            border: 1px solid rgba(18, 169, 245, 0.55);
+            border-radius: 50%;
+            transform: rotate(-25deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 55px rgba(18, 169, 245, 0.08);
+        }
+
+        .escudo {
+            width: 126px;
+            height: 145px;
+            display: grid;
+            place-items: center;
+            font-size: 72px;
+            color: var(--verde);
+            background: linear-gradient(150deg, rgba(24, 224, 178, 0.18), rgba(18, 169, 245, 0.12));
+            border: 2px solid rgba(24, 224, 178, 0.8);
+            border-radius: 48% 48% 45% 45%;
+            transform: rotate(25deg);
+            box-shadow: 0 0 38px rgba(24, 224, 178, 0.12);
+        }
+
+        .recursos {
+            padding: 12px 0 66px;
+        }
+
+        .titulo-secao {
+            font-size: 27px;
+            line-height: 1.25;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .subtitulo {
+            color: var(--texto-suave);
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            min-width: 0;
+            padding: 27px;
+            background: linear-gradient(145deg, rgba(11, 31, 56, 0.98), rgba(7, 24, 45, 0.98));
+            border: 1px solid var(--borda);
+            border-radius: 15px;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(24, 224, 178, 0.6);
             transform: translateY(-3px);
         }
 
-        .icon {
-            font-size: 43px;
+        .icone {
+            width: 62px;
+            height: 62px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 17px;
+            border-radius: 15px;
+            background: rgba(24, 224, 178, 0.09);
+            border: 1px solid rgba(24, 224, 178, 0.17);
+            font-size: 30px;
         }
 
-        .file-card h2 {
-            font-size: 17px;
+        .card:nth-child(2) .icone {
+            background: rgba(18, 169, 245, 0.1);
+            border-color: rgba(18, 169, 245, 0.2);
         }
 
-        .file-card p {
-            color: #aaa;
-            font-size: 12px;
-            text-align: center;
+        .card h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
         }
 
-        /* Área do Texto Colado */
-        .text-input-container {
-            margin-top: 25px;
-        }
-
-        .text-input-container label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #bbb;
-        }
-
-        textarea {
-            width: 100%;
-            height: 120px;
-            background: #2b2b2b;
-            border: 1px solid #414141;
-            border-radius: 12px;
-            padding: 15px;
-            color: #fff;
-            font-size: 14px;
-            resize: vertical;
-            outline: none;
-        }
-
-        textarea:focus {
-            border-color: #10a37f;
-        }
-
-        .selected-files {
-            margin-top: 25px;
-            padding: 18px;
-            border: 1px solid #414141;
-            border-radius: 12px;
-            color: #bbb;
-            font-size: 14px;
-            line-height: 1.8;
-            overflow-wrap: anywhere;
-            background: #2b2b2b;
-        }
-
-        .selected-files h3 {
-            color: #fff;
-            margin-bottom: 8px;
+        .card p {
+            color: var(--texto-suave);
             font-size: 15px;
+            margin-bottom: 17px;
         }
 
-        .selected-files ul {
-            padding-left: 20px;
+        .card ul {
+            list-style: none;
+            display: grid;
+            gap: 9px;
         }
 
-        /* Botão de Envio */
-        .btn-analisar {
-            display: block;
-            width: 100%;
-            margin-top: 25px;
-            padding: 16px;
-            background: #10a37f;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
+        .card li {
+            color: #d6e2f1;
+            font-size: 14px;
+        }
+
+        .card li::before {
+            content: "✓";
+            color: var(--verde);
             font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
+            margin-right: 9px;
         }
 
-        .btn-analisar:hover {
-            background: #0e8e6f;
-        }
-
-        /* Card de Resultado da Análise */
-        .result-card {
-            display: none;
-            margin-top: 35px;
-            padding: 25px;
-            border-radius: 16px;
-            background: #171717;
-            border: 1px solid #10a37f;
-            line-height: 1.6;
-        }
-
-        .result-card h2 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #10a37f;
-        }
-
-        .badge-veredito {
+        .link-card {
             display: inline-block;
-            padding: 6px 12px;
-            border-radius: 6px;
+            margin-top: 20px;
+            color: var(--verde);
             font-weight: bold;
-            margin-bottom: 15px;
-            background: #333;
-            color: #fff;
+            font-size: 14px;
         }
 
-        /* Loading Spinner */
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 25px;
-            color: #10a37f;
-            font-weight: bold;
+        .card:nth-child(2) .link-card {
+            color: #49bfff;
+        }
+
+        .link-card:hover {
+            text-decoration: underline;
+        }
+
+        .aviso {
+            margin: 0 auto 62px;
+            padding: 22px 24px;
+            background: rgba(10, 27, 50, 0.8);
+            border: 1px solid var(--borda);
+            border-left: 4px solid var(--azul);
+            border-radius: 10px;
+        }
+
+        .aviso h2 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .aviso p {
+            color: var(--texto-suave);
+            font-size: 14px;
         }
 
         footer {
+            border-top: 1px solid rgba(60, 110, 155, 0.28);
+            padding: 22px 20px;
+            color: var(--texto-suave);
             text-align: center;
-            color: #777;
-            padding: 30px 15px;
-            font-size: 12px;
+            font-size: 13px;
         }
 
-        input[type="file"] {
-            display: none;
-        }
-
-        @media (max-width: 600px) {
-            header {
-                padding: 20px;
+        @media (max-width: 700px) {
+            .navbar {
+                padding: 17px 0;
+                flex-direction: column;
+                gap: 12px;
             }
 
-            main {
-                margin: 20px auto;
+            nav {
+                justify-content: center;
+                gap: 17px;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                padding: 52px 0 42px;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .hero p {
+                margin-left: auto;
+                margin-right: auto;
+                font-size: 15px;
             }
 
             h1 {
-                font-size: 26px;
+                letter-spacing: -1px;
             }
 
-            .files {
+            .visual {
+                min-height: 165px;
+                order: -1;
+            }
+
+            .orbita {
+                width: 170px;
+                height: 120px;
+            }
+
+            .escudo {
+                width: 95px;
+                height: 108px;
+                font-size: 52px;
+            }
+
+            .recursos {
+                padding-bottom: 45px;
+            }
+
+            .titulo-secao {
+                font-size: 23px;
+            }
+
+            .cards {
                 grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .aviso {
+                margin-bottom: 42px;
+                padding: 19px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                transition: none !important;
             }
         }
     </style>
 </head>
 
 <body>
-
     <header>
-        <div class="logo">Real<span>News</span></div>
+        <div class="container navbar">
+            <a class="logo" href="index.html" aria-label="RealNews - início">
+                Real<span>News</span>
+            </a>
+
+            <nav aria-label="Navegação principal">
+                <a href="index.html" aria-current="page">Início</a>
+                <a href="verificar.html">Verificar notícia</a>
+                <a href="deepfake.html">Deepfake</a>
+            </nav>
+        </div>
     </header>
 
     <main>
-        <h1>Análise de Veracidade</h1>
+        <section class="container hero">
+            <div class="hero-conteudo">
+                <span class="etiqueta">INFORMAÇÃO COM RESPONSABILIDADE</span>
 
-        <p class="subtitle">
-            Descubra se o conteúdo é verídico ou falso enviando um arquivo ou colando o texto/link abaixo.
-        </p>
+                <h1>
+                    Antes de compartilhar,<br>
+                    <span class="destaque">verifique.</span>
+                </h1>
 
-        <div class="files">
+                <p>
+                    Notícias falsas e conteúdos manipulados circulam todos os dias.
+                    Aprenda a analisar informações e pense antes de compartilhar.
+                </p>
 
-            <a href="#"
-               class="file-card"
-               onclick="abrirSeletor(event, 'pdf')">
-                <span class="icon">📕</span>
-                <h2>Arquivos PDF</h2>
-                <p>Selecionar documentos PDF</p>
-            </a>
+                <a class="botao-principal" href="verificar.html">
+                    <span aria-hidden="true">⌕</span>
+                    Verificar uma notícia
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
 
-            <a href="#"
-               class="file-card"
-               onclick="abrirSeletor(event, 'documentos')">
-                <span class="icon">📄</span>
-                <h2>Documentos</h2>
-                <p>DOC, DOCX, TXT e outros</p>
-            </a>
+            <div class="visual" aria-hidden="true">
+                <div class="orbita">
+                    <div class="escudo">✓</div>
+                </div>
+            </div>
+        </section>
 
-            <a href="#"
-               class="file-card"
-               onclick="abrirSeletor(event, 'imagens')">
-                <span class="icon">🖼️</span>
-                <h2>Imagens</h2>
-                <p>JPG, PNG e WEBP</p>
-            </a>
+        <section class="container recursos" aria-labelledby="titulo-recursos">
+            <h2 class="titulo-secao" id="titulo-recursos">Como podemos ajudar?</h2>
+            <p class="subtitulo">
+                Informação e consciência para navegar com mais segurança.
+            </p>
 
-        </div>
+            <div class="cards">
+                <article class="card">
+                    <div class="icone" aria-hidden="true">🔎</div>
 
-        <input type="file" id="pdf" accept=".pdf" multiple>
-        <input type="file" id="documentos" accept=".doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.csv,.ppt,.pptx" multiple>
-        <input type="file" id="imagens" accept="image/*" multiple>
+                    <h3>Combata a desinformação</h3>
 
-        <div class="selected-files">
-            <h3>📎 Arquivos selecionados</h3>
-            <ul id="lista">
-                <li>Nenhum arquivo selecionado.</li>
-            </ul>
-        </div>
+                    <p>
+                        Pequenos cuidados ajudam você a avaliar uma informação
+                        antes de acreditar nela ou repassá-la.
+                    </p>
 
-        <!-- Campo de texto alternativo ou complemento -->
-        <div class="text-input-container">
-            <label for="textoNoticia"><strong>Ou cole a notícia / link aqui diretamente:</strong></label>
-            <textarea id="textoNoticia" placeholder="Cole aqui o texto da notícia ou o link para análise..."></textarea>
-        </div>
+                    <ul>
+                        <li>Confira quem publicou a notícia.</li>
+                        <li>Compare com outras fontes confiáveis.</li>
+                        <li>Verifique a data e o contexto.</li>
+                    </ul>
 
-        <button class="btn-analisar" onclick="enviarParaVerificacao()">🔍 Analisar com IA</button>
+                    <a class="link-card" href="#dica-final">
+                        Ver dica importante ↓
+                    </a>
+                </article>
 
-        <!-- Indicador de Carregamento -->
-        <div id="loading" class="loading">
-            ⏳ Analisando conteúdo no Gemini... Aguarde um instante.
-        </div>
+                <article class="card">
+                    <div class="icone" aria-hidden="true">🛡️</div>
 
-        <!-- Exibição do Resultado da API -->
-        <div id="resultCard" class="result-card">
-            <h2>Resultado do Fact-Checking</h2>
-            <p><strong>Veredito:</strong> <span id="resVeredito" class="badge-veredito">-</span></p>
-            <p><strong>Nível de Confiança:</strong> <span id="resConfianca">-</span></p>
-            <br>
-            <p><strong>Análise Detalhada:</strong></p>
-            <p id="resResumo" style="color: #ccc; margin-top: 5px;"></p>
-        </div>
+                    <h3>Entender deepfakes</h3>
+
+                    <p>
+                        Conheça conteúdos criados ou alterados com inteligência
+                        artificial e aprenda a observar possíveis sinais de manipulação.
+                    </p>
+
+                    <a class="link-card" href="deepfake.html">
+                        Saiba mais sobre deepfakes →
+                    </a>
+                </article>
+            </div>
+        </section>
+
+        <section class="container aviso" id="dica-final">
+            <h2>💡 Na dúvida, não compartilhe ainda.</h2>
+
+            <p>
+                Procure a fonte original, confira outras referências e desconfie
+                de mensagens que pressionam você a compartilhar imediatamente.
+            </p>
+        </section>
     </main>
-
-    <footer>
-        RealNews - Verificador de Fatos com Inteligência Artificial.
-    </footer>
-
-    <script>
-        const lista = document.getElementById("lista");
-        const arquivosSelecionados = new Map();
-
-        function abrirSeletor(event, tipo) {
-            event.preventDefault();
-            document.getElementById(tipo).click();
-        }
-
-        ["pdf", "documentos", "imagens"].forEach(tipo => {
-            document.getElementById(tipo).addEventListener(
-                "change",
-                function () {
-                    for (const arquivo of this.files) {
-                        const chave = tipo + ":" + arquivo.name + ":" + arquivo.size;
-                        arquivosSelecionados.set(chave, arquivo);
-                    }
-                    atualizarLista();
-                    this.value = "";
-                }
-            );
-        });
-
-        function atualizarLista() {
-            lista.replaceChildren();
-
-            if (arquivosSelecionados.size === 0) {
-                const item = document.createElement("li");
-                item.textContent = "Nenhum arquivo selecionado.";
-                lista.appendChild(item);
-                return;
-            }
-
-            arquivosSelecionados.forEach((arquivo, chave) => {
-                const item = document.createElement("li");
-                item.textContent = arquivo.name + " (" + (arquivo.size / 1024).toFixed(1) + " KB) ";
-
-                const remover = document.createElement("button");
-                remover.textContent = "Remover";
-                remover.type = "button";
-                remover.style.cssText = "margin-left:10px;cursor:pointer;background:none;border:0;color:#10a37f;";
-
-                remover.addEventListener("click", () => {
-                    arquivosSelecionados.delete(chave);
-                    atualizarLista();
-                });
-
-                item.appendChild(remover);
-                lista.appendChild(item);
-            });
-        }
-
-        // --- INTEGRAÇÃO COM A API DJANGO ---
-        async function enviarParaVerificacao() {
-            const textoDigitado = document.getElementById("textoNoticia").value.trim();
-            let conteudoFinal = textoDigitado;
-
-            // Se o usuário selecionou arquivos, vamos ler o conteúdo dos arquivos de texto selecionados
-            if (arquivosSelecionados.size > 0) {
-                for (let [chave, arquivo] of arquivosSelecionados) {
-                    if (arquivo.name.endsWith(".txt")) {
-                        const textoArquivo = await arquivo.text();
-                        conteudoFinal += "\n\n" + textoArquivo;
-                    } else {
-                        conteudoFinal += `\n\n[Arquivo anexado: ${arquivo.name}]`;
-                    }
-                }
-            }
-
-            if (!conteudoFinal.trim()) {
-                alert("Por favor, cole um texto/link ou selecione um arquivo para analisar.");
-                return;
-            }
-
-            // Exibe indicador de loading e esconde resultados anteriores
-            document.getElementById("loading").style.display = "block";
-            document.getElementById("resultCard").style.display = "none";
-
-            try {
-                // Chamada Fetch para a API Django
-                const response = await fetch('http://127.0.0.1:8000/api/analisar/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        tipo_conteudo: "texto_ou_arquivo",
-                        conteudo: conteudoFinal
-                    })
-                });
-
-                const data = await response.json();
-
-                document.getElementById("loading").style.display = "none";
-
-                if (response.ok) {
-                    // Preenche e exibe os dados retornados do Gemini
-                    document.getElementById("resVeredito").innerText = data.resultado.veredito || "Analisado";
-                    document.getElementById("resConfianca").innerText = data.resultado.nivel_confianca || "Média";
-                    document.getElementById("resResumo").innerText = data.resultado.resumo_analise || "Sem resumo disponível.";
-
-                    // Destaca a cor do veredito
-                    const badge = document.getElementById("resVeredito");
-                    const veredito = (data.resultado.veredito || "").toLowerCase();
-                    if (veredito.includes("falso")) {
-                        badge.style.background = "#e53935"; // Vermelho
-                    } else if (veredito.includes("verdadeiro")) {
-                        badge.style.background = "#43a047"; // Verde
-                    } else {
-                        badge.style.background = "#fb8c00"; // Laranja/Amarelo
-                    }
-
-                    document.getElementById("resultCard").style.display = "block";
-                } else {
-                    alert("Erro do servidor: " + (data.erro || "Erro na solicitação."));
-                }
-
-            } catch (error) {
-                document.getElementById("loading").style.display = "none";
-                console.error("Erro na comunicação:", error);
-                alert("Não foi possível conectar ao servidor Django (http://127.0.0.1:8000). Certifique-se de que ele está rodando!");
-            }
-        }
-    </script>
 
 </body>
 </html>
