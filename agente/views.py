@@ -1,88 +1,131 @@
 import json
+import os
+import time
+import traceback
+import requests
+from bs4 import BeautifulSoup
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from google import genai
-from google.genai import types
-from .models import VerificacaoFato
-import os
+from dotenv import load_dotenv
 
-# Inicializa o cliente do Gemini utilizando a chave do ambiente (.env)
-client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+load_dotenv()
+
+def extrair_conteudo_url(url):
+    """Descarrega o HTML da URL e extrai o título e o texto dos parágrafos."""
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        response = requests.get(url, headers=headers, timeout=6)
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Remove elementos indesejados (scripts, estilos, menus)
+            for element in soup(["script", "style", "nav", "footer", "header"]):
+                element.decompose()
+                
+            # Extrai o título da página
+            titulo = soup.find('h1')
+            titulo_texto = titulo.get_text().strip() if titulo else ""
+            
+            # Extrai os parágrafos do corpo da notícia
+            paragrafos = soup.find_all('p')
+            texto_pagina = " ".join([p.get_text().strip() for p in paragrafos])
+            
+            if len(texto_pagina) > 50:
+                return f"Título da Página: {titulo_texto}\n\nConteúdo da Notícia:\n{texto_pagina}"
+    except Exception as e:
+        print(f"Erro ao raspar URL: {e}")
+    
+    return None
 
 @csrf_exempt
 def analisar_conteudo(request):
-    if request.method == 'POST':
-        try:
-            # 1. Recebe os dados enviados pelo front-end do site
-            data = json.loads(request.body)
-            tipo_conteudo = data.get('tipo_conteudo', 'texto') # 'texto', 'link' ou 'pdf'
-            conteudo = data.get('conteudo', '')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Método não permitido'}, status=405)
 
-            if not conteudo:
-                return JsonResponse({'erro': 'O campo de conteúdo não pode estar vazio.'}, status=400)
+    try:
+        data = json.loads(request.body)
+        entrada = data.get('conteudo', '').strip()
 
-            # 2. Engenharia de Prompt focada em Fact-Checking
-            prompt = f"""
-            Você é um assistente especialista em fact-checking, jornalismo investigativo e análise crítica de fake news.
-            Analise rigorosamente o seguinte conteúdo fornecido e verifique se há indícios de falsidade, manipulação, exagero ou falta de fontes confiáveis:
+        if not entrada:
+            return JsonResponse({'error': 'O conteúdo fornecido está vazio.'}, status=400)
 
-            Tipo de Conteúdo: {tipo_conteudo}
-            Conteúdo a ser analisado:
-            {conteudo}
+        conteudo_para_analise = entrada
 
-            Retorne obrigatoriamente um JSON puro (sem markdown extra, apenas o objeto JSON) contendo exatamente estas chaves:
-            {{
-                "veredito": "Verdadeiro / Falso / Parcialmente Falso / Exagerado / Não Verificável",
-                "nivel_confianca": "Alta / Média / Baixa",
-                "resumo_analise": "Explicação detalhada e fundamentada do porquê dessa conclusão...",
-                "pontos_atencao": ["Ponto crítico ou inconsistência 1", "Ponto crítico ou inconsistência 2"]
-            }}
-            """
+        # Se o utilizador enviou um link, fazemos o scraping do conteúdo real
+        if entrada.startswith("http://") or entrada.startswith("https://"):
+            conteudo_extraido = extrair_conteudo_url(entrada)
+            if conteudo_extraido:
+                conteudo_para_analise = f"Link analisado: {entrada}\n\n{conteudo_extraido}"
+            else:
+                conteudo_para_analise = f"Link analisado: {entrada} (A página bloqueou a leitura automática ou é inacessível, analise com cautela)."
 
-            # 3. Chamada à API do Gemini com fallback automático entre modelos Flash
-            resposta_ia = None
-            modelos_para_tentar = ['gemini-2.5-flash', 'gemini-2.5-flash-lite']
-            
-            for modelo in modelos_para_tentar:
-                try:
-                    response = client.models.generate_content(
-                        model=modelo,
-                        contents=prompt,
-                        config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            temperature=0.2 # Baixa temperatura para respostas mais objetivas e analíticas
-                        )
-                    )
-                    resposta_ia = response.text
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key:
+            return JsonResponse({'error': 'Chave GEMINI_API_KEY não encontrada no .env ou ambiente.'}, status=500)
+
+        client = genai.Client(api_key=api_key)
+
+        prompt = f"""
+        Você é um agente especialista em fact-checking e verificação de notícias.
+        Contexto temporal atual: Estamos em Outubro de 2026. Notícias com datas recentes de 2026 são atuais e válidas.
+        
+        Analise o texto/conteúdo fornecido abaixo e determine se é verdadeiro, falso, manipulado ou suspeito.
+        Baseie-se estritamente no conteúdo extraído da página. Retorne a resposta de forma clara e detalhada.
+
+        Conteúdo para analisar:
+        {conteudo_para_analise}
+        """
+
+        # Chamada ao modelo com tentativas automáticas para o erro 503
+        max_tentativas = 4
+        response = None
+        ultimo_erro = None
+
+        for tentativa in range(1, max_tentativas + 1):
+            try:
+                response = client.models.generate_content(
+                    model='gemini-3.8-flash',
+                    contents=prompt,
+                )
+                if response and response.text:
                     break
-                except Exception as e:
-                    continue
+            except Exception as err:
+                ultimo_erro = err
+                erro_str = str(err)
+                if "503" in erro_str or "UNAVAILABLE" in erro_str:
+                    if tentativa < max_tentativas:
+                        time.sleep(2 * tentativa)
+                        continue
+                break
 
-            if not resposta_ia:
-                return JsonResponse({'erro': 'Serviço de IA temporariamente indisponível.'}, status=503)
+        if not response or not response.text:
+            raise ultimo_erro
 
-            # 4. Converte a resposta da IA de string para dicionário Python (JSON)
-            dados_json = json.loads(resposta_ia)
+        analise_texto = response.text
 
-            # 5. Salva permanentemente no Banco de Dados Relacional
-            verificacao = VerificacaoFato.objects.create(
-                tipo_conteudo=tipo_conteudo,
-                conteudo=conteudo,
-                veredito=dados_json.get('veredito', 'Indefinido'),
-                nivel_confianca=dados_json.get('nivel_confianca', 'Baixa'),
-                resumo_analise=dados_json.get('resumo_analise', '')
-            )
+        resposta_estruturada = {
+            "veredito": "Análise Concluída",
+            "nivel_confianca": "Alta",
+            "resumo_analise": analise_texto
+        }
 
-            # 6. Retorna o resultado estruturado para o Front-end
-            return JsonResponse({
-                'sucesso': True,
-                'id_analise': verificacao.id,
-                'resultado': dados_json
-            }, status=200)
+        return JsonResponse({"resultado": resposta_estruturada}, status=200)
 
-        except json.JSONDecodeError:
-            return JsonResponse({'erro': 'Formato JSON inválido na requisição.'}, status=400)
-        except Exception as e:
-            return JsonResponse({'erro': str(e)}, status=500)
+    except Exception as e:
+        traceback.print_exc()
+        erro_str = str(e)
+        
+        if "429" in erro_str or "RESOURCE_EXHAUSTED" in erro_str:
+            mensagem = "Limite diário gratuito atingido (20 requisições). Aguarde o reset ou use um novo projeto."
+            status_code = 429
+        elif "503" in erro_str or "UNAVAILABLE" in erro_str:
+            mensagem = "Servidores da Google com alta procura persistente (Erro 503). Tente novamente em instantes."
+            status_code = 503
+        else:
+            mensagem = f"Erro na análise: {erro_str}"
+            status_code = 500
 
-    return JsonResponse({'erro': 'Método HTTP não permitido. Utilize POST.'}, status=405)   
+        return JsonResponse({'error': mensagem}, status=status_code)
