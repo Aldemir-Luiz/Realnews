@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar notícia | RealNews</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --fundo: #080f1e;
+            --card: #101b2d;
+            --borda: #26364c;
+            --texto: #f1f5f9;
+            --texto-secundario: #9baac0;
+            --azul: #38bdf8;
+            --verde: #2dd4a0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--fundo);
+            color: var(--texto);
+            min-height: 100vh;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        header {
+            width: 100%;
+            border-bottom: 1px solid var(--borda);
+            background: #0b1424;
+        }
+
+        .navbar {
+            max-width: 1150px;
+            margin: auto;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.logo span {
+    color: #27d6c5;
+}
+
+        nav {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--texto-secundario);
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        nav a:hover,
+        nav a.ativo {
+            color: var(--verde);
+        }
+
+        main {
+            max-width: 900px;
+            margin: auto;
+            padding: 55px 20px 70px;
+        }
+
+        .voltar {
+            display: inline-block;
+            color: var(--texto-secundario);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .voltar:hover {
+            color: var(--azul);
+        }
+
+        .introducao {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .etiqueta {
+            display: inline-block;
+            color: var(--verde);
+            border: 1px solid #246653;
+            background: #102c29;
+            padding: 8px 13px;
+            border-radius: 30px;
+            font-size: 12px;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-size: clamp(30px, 5vw, 43px);
+            margin-bottom: 15px;
+        }
+
+        .introducao p {
+            color: var(--texto-secundario);
+            line-height: 1.7;
+            max-width: 620px;
+            margin: auto;
+        }
+
+        .painel {
+            background: var(--card);
+            border: 1px solid var(--borda);
+            border-radius: 18px;
+            padding: 28px;
+        }
+
+        .painel h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .descricao {
+            color: var(--texto-secundario);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            resize: vertical;
+            background: #091321;
+            border: 1px solid var(--borda);
+            border-radius: 12px;
+            color: var(--texto);
+            padding: 16px;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.6;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: var(--azul);
+        }
+
+        textarea::placeholder {
+            color: #718198;
+        }
+
+        .contador {
+            text-align: right;
+            color: var(--texto-secundario);
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .separador {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--texto-secundario);
+            font-size: 12px;
+            margin: 25px 0;
+        }
+
+        .separador::before,
+        .separador::after {
+            content: "";
+            height: 1px;
+            background: var(--borda);
+            flex: 1;
+        }
+
+        .upload {
+            border: 1px dashed #40516a;
+            background: #0b1626;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .upload .icone {
+            font-size: 30px;
+            margin-bottom: 12px;
+        }
+
+        .upload p {
+            color: var(--texto-secundario);
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 8px 0 15px;
+        }
+
+        .botao-arquivo {
+            display: inline-block;
+            background: #192a40;
+            border: 1px solid #354961;
+            color: var(--texto);
+            border-radius: 8px;
+            padding: 11px 16px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .botao-arquivo:hover {
+            border-color: var(--azul);
+        }
+
+        #arquivo {
+            display: none;
+        }
+
+        #nomeArquivo {
+            color: var(--verde);
+            font-size: 13px;
+            margin-top: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .aviso {
+            color: var(--texto-secundario);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-top: 16px;
+        }
+
+        .botao-analisar {
+            width: 100%;
+            margin-top: 25px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(100deg, #2dd4a0, #38bdf8);
+            color: #06111d;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .botao-analisar:hover {
+            filter: brightness(1.08);
+            transform: translateY(-1px);
+        }
+
+        .botao-analisar:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+        }
+
+        .mensagem {
+            display: none;
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .erro {
+            color: #fecaca;
+            background: #35191e;
+            border: 1px solid #71333b;
+        }
+
+        .resultado {
+            display: none;
+            margin-top: 25px;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            padding: 22px;
+            background: #0b1626;
+        }
+
+        .resultado h2 {
+            margin-bottom: 18px;
+        }
+
+        .resultado p {
+            color: var(--texto-secundario);
+            line-height: 1.7;
+            font-size: 14px;
+            margin-top: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .resultado strong {
+            color: var(--texto);
+        }
+
+        .veredito {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #192a40;
+            color: var(--azul);
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+
+        @media (max-width: 600px) {
+            .navbar {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 18px;
+            }
+
+            nav {
+                gap: 15px;
+            }
+
+            nav a {
+                font-size: 13px;
+            }
+
+            main {
+                padding: 35px 15px 45px;
+            }
+
+            .painel {
+                padding: 19px;
+            }
+
+            textarea {
+                min-height: 160px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="navbar">
+            <a href="index.html" class="logo">
+    Real<span>News</span>
+</a>
+
+            <nav>
+                <a href="index.html">Início</a>
+                <a href="verificar.html" class="ativo">Verificar notícia</a>
+                <a href="deepfake.html">Deepfake</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <a href="index.html" class="voltar">← Voltar para o início</a>
+
+        <section class="introducao">
+            <span class="etiqueta">ANÁLISE DE CONTEÚDO</span>
+            <h1>Verifique antes de compartilhar.</h1>
+            <p>
+                Cole uma notícia, um texto ou um link para iniciar a análise.
+                O RealNews ajudará você a avaliar as informações antes de
+                compartilhá-las.
+            </p>
+        </section>
+
+        <section class="painel">
+            <h2>O que você deseja verificar?</h2>
+            <p class="descricao">
+                Insira o conteúdo abaixo. Quanto mais informações você fornecer,
+                melhor poderá ser a análise.
+            </p>
+
+            <form id="formulario">
+                <label for="conteudo">Texto da notícia ou link</label>
+
+                <textarea
+                    id="conteudo"
+                    maxlength="10000"
+                    placeholder="Cole aqui o texto da notícia ou o link da publicação..."
+                ></textarea>
+
+                <div class="contador">
+                    <span id="contador">0</span>/10000 caracteres
+                </div>
+
+                <div class="separador">OU ENVIE UM ARQUIVO</div>
+
+                <div class="upload">
+                    <div class="icone">📄</div>
+                    <label for="arquivo">Adicionar documento ou texto</label>
+                    <p>
+                        Selecione um arquivo para anexar à análise.
+                        Nesta versão, o conteúdo do arquivo ainda não é
+                        extraído automaticamente.
+                    </p>
+
+                    <label for="arquivo" class="botao-arquivo">
+                        Escolher arquivo
+                    </label>
+
+                    <input
+                        type="file"
+                        id="arquivo"
+                        accept=".txt,.pdf,.doc,.docx,.png,.jpg,.jpeg"
+                    >
+
+                    <div id="nomeArquivo"></div>
+                </div>
+
+                <p class="aviso">
+                    Atenção: o resultado é um apoio à verificação, não uma
+                    garantia de que a notícia seja verdadeira ou falsa.
+                    Confira também as fontes originais.
+                </p>
+
+                <button type="submit" class="botao-analisar" id="botaoAnalisar">
+                    Analisar conteúdo
+                </button>
+            </form>
+
+            <div class="mensagem erro" id="mensagemErro" role="alert"></div>
+
+            <section class="resultado" id="resultado" aria-live="polite">
+                <h2>Resultado da análise</h2>
+
+                <span class="veredito" id="veredito">Resultado</span>
+
+                <p>
+                    <strong>Nível de confiança:</strong>
+                    <span id="confianca">Não informado</span>
+                </p>
+
+                <p>
+                    <strong>Resumo:</strong>
+                    <span id="resumo">Nenhum resumo disponível.</span>
+                </p>
+
+                <p>
+                    <strong>Importante:</strong> consulte outras fontes
+                    confiáveis antes de tirar uma conclusão.
+                </p>
+            </section>
+        </section>
+
+    </main>
+
+    <script>
+        const formulario = document.getElementById("formulario");
+        const campoConteudo = document.getElementById("conteudo");
+        const campoArquivo = document.getElementById("arquivo");
+        const nomeArquivo = document.getElementById("nomeArquivo");
+        const contador = document.getElementById("contador");
+        const botaoAnalisar = document.getElementById("botaoAnalisar");
+        const mensagemErro = document.getElementById("mensagemErro");
+        const resultado = document.getElementById("resultado");
+
+        campoConteudo.addEventListener("input", () => {
+            contador.textContent = campoConteudo.value.length;
+        });
+
+        campoArquivo.addEventListener("change", () => {
+            const arquivo = campoArquivo.files[0];
+
+            nomeArquivo.textContent = arquivo
+                ? "Arquivo selecionado: " + arquivo.name
+                : "";
+        });
+
+        formulario.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+
+            mensagemErro.style.display = "none";
+            resultado.style.display = "none";
+
+            const texto = campoConteudo.value.trim();
+            const arquivo = campoArquivo.files[0];
+
+            if (!texto && !arquivo) {
+                mensagemErro.textContent =
+                    "Cole uma notícia ou selecione um arquivo antes de continuar.";
+                mensagemErro.style.display = "block";
+                return;
+            }
+
+            if (arquivo && !texto) {
+                mensagemErro.textContent =
+                    "O envio de arquivos ainda precisa ser integrado ao backend. Por enquanto, cole o texto da notícia no campo acima.";
+                mensagemErro.style.display = "block";
+                return;
+            }
+
+            botaoAnalisar.disabled = true;
+            botaoAnalisar.textContent = "Analisando...";
+            
+            try {
+                const resposta = await fetch(
+                    "http://127.0.0.1:8000/api/analisar/",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            tipo_conteudo: "texto_ou_arquivo",
+                            conteudo: texto
+                        })
+                    }
+                );
+
+                if (!resposta.ok) {
+                    throw new Error(
+                        "O servidor respondeu com erro (" + resposta.status + ")."
+                    );
+                }
+
+                const dados = await resposta.json();
+                const analise = dados.resultado || dados;
+
+                document.getElementById("veredito").textContent =
+                    analise.veredito || "Resultado não informado";
+
+                document.getElementById("confianca").textContent =
+                    analise.nivel_confianca ?? "Não informado";
+
+                document.getElementById("resumo").textContent =
+                    analise.resumo_analise || "Nenhum resumo disponível.";
+
+                resultado.style.display = "block";
+                resultado.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+            } catch (erro) {
+                mensagemErro.textContent =
+                    "Não foi possível realizar a análise. Verifique se o backend está ligado e se a rota /api/analisar/ está correta. Detalhe: " +
+                    erro.message;
+
+                mensagemErro.style.display = "block";
+            } finally {
+                botaoAnalisar.disabled = false;
+                botaoAnalisar.textContent = "Analisar conteúdo";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,624 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detector de Deepfake | RealNews</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: #07111f;
+            --surface: #101e30;
+            --surface-light: #17283d;
+            --primary: #27d6c5;
+            --text: #f1f5f9;
+            --muted: #9aabc0;
+            --border: #26384d;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            background: #0a1626;
+        }
+
+        .navbar {
+            max-width: 1150px;
+            margin: auto;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.logo span {
+    color: #27d6c5;
+}
+
+        nav {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: var(--primary);
+        }
+
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 55px 24px 70px;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .tag {
+            display: inline-block;
+            color: var(--primary);
+            background: #103137;
+            border: 1px solid #1b5757;
+            border-radius: 30px;
+            padding: 8px 14px;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: clamp(30px, 5vw, 43px);
+            margin-bottom: 15px;
+            line-height: 1.15;
+        }
+
+        h1 span {
+            color: var(--primary);
+        }
+
+        .intro p {
+            max-width: 620px;
+            margin: auto;
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+            margin-bottom: 22px;
+        }
+
+        .panel h2 {
+            font-size: 19px;
+            margin-bottom: 9px;
+        }
+
+        .description {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        .upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: center;
+            padding: 35px 20px;
+            border: 2px dashed #36516b;
+            border-radius: 14px;
+            background: #0b1929;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: #10252f;
+        }
+
+        .upload-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: #15363b;
+            display: grid;
+            place-items: center;
+            color: var(--primary);
+            font-size: 29px;
+            margin-bottom: 17px;
+        }
+
+        .upload-area strong {
+            font-size: 16px;
+            margin-bottom: 9px;
+        }
+
+        .upload-area p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .browse {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-info {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .file-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .file-name {
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .file-size {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .remove-btn {
+            border: 1px solid var(--border);
+            background: transparent;
+            color: #ff9a9a;
+            padding: 8px 11px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .preview {
+            display: none;
+            margin-top: 18px;
+            text-align: center;
+        }
+
+        .preview img,
+        .preview video {
+            max-width: 100%;
+            max-height: 350px;
+            border-radius: 12px;
+            object-fit: contain;
+            background: #050b13;
+        }
+
+        .primary-btn {
+            width: 100%;
+            margin-top: 20px;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            background: var(--primary);
+            color: #061b20;
+            font-weight: bold;
+            font-size: 15px;
+            transition: .2s;
+        }
+
+        .primary-btn:hover:not(:disabled) {
+            background: #66eee0;
+            transform: translateY(-1px);
+        }
+
+        .primary-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .notice {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .result {
+            display: none;
+            margin-top: 22px;
+            padding: 20px;
+            background: #0b1929;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .result h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .result p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .tips {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .tip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 19px;
+            border-radius: 13px;
+        }
+
+        .tip-icon {
+            color: var(--primary);
+            font-size: 23px;
+            margin-bottom: 12px;
+        }
+
+        .tip h3 {
+            font-size: 14px;
+            margin-bottom: 9px;
+        }
+
+        .tip p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 25px 15px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 650px) {
+            .navbar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 18px 20px;
+            }
+
+            nav {
+                gap: 15px;
+            }
+
+            nav a {
+                font-size: 13px;
+            }
+
+            main {
+                padding: 38px 16px 50px;
+            }
+
+            .panel {
+                padding: 19px;
+            }
+
+            .tips {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-area {
+                padding: 28px 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="navbar">
+        <a href="index.html" class="logo">
+    Real<span>News</span>
+</a>
+
+        <nav>
+            <a href="index.html">Início</a>
+            <a href="verificar.html">Verificar notícia</a>
+            <a href="deepfake.html" class="active">Detector de deepfake</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+
+    <section class="intro">
+        <span class="tag">TECNOLOGIA E INFORMAÇÃO</span>
+
+        <h1>Esse conteúdo é <span>real ou artificial?</span></h1>
+
+        <p>
+            Selecione uma imagem ou vídeo para visualizar o arquivo
+            e conhecer os sinais que podem indicar uma manipulação digital.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2>Analise um conteúdo</h2>
+
+        <p class="description">
+            Envie uma imagem ou vídeo do seu dispositivo para começar.
+            Esta versão funciona somente no navegador e não realiza
+            detecção automática de deepfakes.
+        </p>
+
+        <label class="upload-area" id="uploadArea" for="fileInput">
+            <div class="upload-icon">↑</div>
+
+            <strong>Arraste seu arquivo até aqui</strong>
+
+            <p>
+                ou <span class="browse">clique para selecionar</span><br>
+                Imagens: JPG, PNG e WEBP<br>
+                Vídeos: MP4, WEBM e MOV · Máximo de 25 MB
+            </p>
+        </label>
+
+        <input
+            type="file"
+            id="fileInput"
+            accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
+        >
+
+        <div class="file-info" id="fileInfo">
+            <div class="file-top">
+                <div>
+                    <div class="file-name" id="fileName"></div>
+                    <div class="file-size" id="fileSize"></div>
+                </div>
+
+                <button type="button" class="remove-btn" id="removeBtn">
+                    Remover
+                </button>
+            </div>
+        </div>
+
+        <div class="preview" id="preview"></div>
+
+        <button class="primary-btn" id="analyzeBtn" disabled>
+            Visualizar orientações
+        </button>
+
+        <p class="notice">
+            Seus arquivos são exibidos localmente nesta página.
+            Nenhuma análise automática é realizada.
+        </p>
+
+        <div class="result" id="result" aria-live="polite">
+            <h3>Orientações para avaliar o conteúdo</h3>
+            <p id="resultText"></p>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>O que observar?</h2>
+
+        <p class="description">
+            Alguns sinais podem levantar suspeitas, mas não provam
+            que um conteúdo seja falso.
+        </p>
+
+        <div class="tips">
+            <article class="tip">
+                <div class="tip-icon">◉</div>
+                <h3>Rosto e expressões</h3>
+                <p>
+                    Observe se as expressões faciais parecem naturais
+                    e se há alterações visuais inconsistentes.
+                </p>
+            </article>
+
+            <article class="tip">
+                <div class="tip-icon">▧</div>
+                <h3>Detalhes da imagem</h3>
+                <p>
+                    Procure diferenças de iluminação, bordas estranhas
+                    ou detalhes que mudam entre os quadros.
+                </p>
+            </article>
+
+            <article class="tip">
+                <div class="tip-icon">✓</div>
+                <h3>Fonte original</h3>
+                <p>
+                    Procure a publicação original e compare o conteúdo
+                    com fontes confiáveis antes de compartilhar.
+                </p>
+            </article>
+        </div>
+    </section>
+
+</main>
+
+
+<script>
+    const fileInput = document.getElementById("fileInput");
+    const uploadArea = document.getElementById("uploadArea");
+    const fileInfo = document.getElementById("fileInfo");
+    const fileName = document.getElementById("fileName");
+    const fileSize = document.getElementById("fileSize");
+    const preview = document.getElementById("preview");
+    const removeBtn = document.getElementById("removeBtn");
+    const analyzeBtn = document.getElementById("analyzeBtn");
+    const result = document.getElementById("result");
+    const resultText = document.getElementById("resultText");
+
+    const maxSize = 25 * 1024 * 1024;
+    let currentFile = null;
+    let objectUrl = null;
+
+    function clearPreview() {
+        if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+            objectUrl = null;
+        }
+
+        preview.replaceChildren();
+        preview.style.display = "none";
+    }
+
+    function resetPage() {
+        clearPreview();
+        currentFile = null;
+        fileInput.value = "";
+        fileInfo.style.display = "none";
+        analyzeBtn.disabled = true;
+        result.style.display = "none";
+    }
+
+    function loadFile(file) {
+        if (!file) return;
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "video/mp4",
+            "video/webm",
+            "video/quicktime"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            alert("Formato não suportado. Selecione uma imagem ou vídeo compatível.");
+            resetPage();
+            return;
+        }
+
+        if (file.size > maxSize) {
+            alert("O arquivo ultrapassa o limite de 25 MB.");
+            resetPage();
+            return;
+        }
+
+        resetPage();
+        currentFile = file;
+        objectUrl = URL.createObjectURL(file);
+
+        fileName.textContent = file.name;
+        fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+        fileInfo.style.display = "block";
+        preview.style.display = "block";
+        analyzeBtn.disabled = false;
+
+        let media;
+
+        if (file.type.startsWith("image/")) {
+            media = document.createElement("img");
+            media.alt = "Pré-visualização da imagem selecionada";
+        } else {
+            media = document.createElement("video");
+            media.controls = true;
+            media.preload = "metadata";
+        }
+
+        media.src = objectUrl;
+        preview.appendChild(media);
+    }
+
+    fileInput.addEventListener("change", () => {
+        loadFile(fileInput.files[0]);
+    });
+
+    removeBtn.addEventListener("click", resetPage);
+
+    ["dragenter", "dragover"].forEach(eventName => {
+        uploadArea.addEventListener(eventName, event => {
+            event.preventDefault();
+            uploadArea.classList.add("dragover");
+        });
+    });
+
+    ["dragleave", "drop"].forEach(eventName => {
+        uploadArea.addEventListener(eventName, event => {
+            event.preventDefault();
+            uploadArea.classList.remove("dragover");
+        });
+    });
+
+    uploadArea.addEventListener("drop", event => {
+        const file = event.dataTransfer.files[0];
+        loadFile(file);
+    });
+
+    analyzeBtn.addEventListener("click", () => {
+        if (!currentFile) return;
+
+        resultText.textContent =
+            "O arquivo foi carregado e está sendo exibido para inspeção visual. " +
+            "Esta página não possui um detector automático, portanto não pode " +
+            "classificar o conteúdo como real ou falso. Verifique a origem, " +
+            "compare com fontes confiáveis e não conclua que há manipulação " +
+            "apenas por encontrar um sinal visual.";
+
+        result.style.display = "block";
+        result.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+    });
+</script>
+
+</body>
+</html>
